@@ -1,12 +1,11 @@
-const express = require('express');
+const { Router } = require('express');
 
-const server = express();
-
-server.use(express.json());
+const routes = new Router();
 
 let numeroDeRequisicoes = 0;
 const projetos = [];
 
+// ****** Middlewares Globais ******
 function verificaID (req, res, next) {
   const { id } = req.params;
   const projeto = projetos.find(projetoId => projetoId.id == id);
@@ -28,13 +27,14 @@ function logRequisicoes (req, res, next) {
   return next();
 }
 
-server.use(logRequisicoes);
+routes.use(logRequisicoes);
 
-server.get('/projects', (req, res) => {
+// ****** Routes ******
+routes.get('/projects', (req, res) => {
   return res.json(projetos);
 });
 
-server.post('/projects', (req, res) => {
+routes.post('/projects', (req, res) => {
   const { id, title } = req.body;
 
   const projeto = {
@@ -49,7 +49,7 @@ server.post('/projects', (req, res) => {
 
 });
 
-server.put('/projects/:id', verificaID, (req, res) => {
+routes.put('/projects/:id', verificaID, (req, res) => {
   const { id } = req.params;
   const { title } = req.body;
 
@@ -60,11 +60,11 @@ server.put('/projects/:id', verificaID, (req, res) => {
   return res.json(projeto);
 });
 
-server.get('/projects/:id', verificaID, (req, res) => {
+routes.get('/projects/:id', verificaID, (req, res) => {
   return res.json(req.projeto); 
 });
 
-server.delete('/projects/:id', (req, res) => {
+routes.delete('/projects/:id', (req, res) => {
   const { id } = req.params;
 
   const projetoIndex = projetos.findIndex(p => p.id == id);
@@ -75,7 +75,7 @@ server.delete('/projects/:id', (req, res) => {
 });
 
 // Tasks
-server.post('/projects/:id/tasks', verificaID, (req, res) => {
+routes.post('/projects/:id/tasks', verificaID, (req, res) => {
   const { id } = req.params;
   const { title } = req.body;
 
@@ -86,6 +86,4 @@ server.post('/projects/:id/tasks', verificaID, (req, res) => {
   return res.json(projeto);
 });
 
-
-
-server.listen(3333);
+module.exports = routes;
